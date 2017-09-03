@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.10
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "STemWin", "STemWin\STemWin.vcxproj", "{F21DD6FA-D5C5-4D61-A928-0B137720C155}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Release|VisualGDB = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F21DD6FA-D5C5-4D61-A928-0B137720C155}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{F21DD6FA-D5C5-4D61-A928-0B137720C155}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{F21DD6FA-D5C5-4D61-A928-0B137720C155}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{F21DD6FA-D5C5-4D61-A928-0B137720C155}.Release|VisualGDB.Build.0 = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DB6FD040-6CAF-4529-9DF3-ACDEC0F44084}
+	EndGlobalSection
+EndGlobal
