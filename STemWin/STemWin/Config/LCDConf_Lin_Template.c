@@ -53,6 +53,7 @@ Purpose     : Display controller configuration (single layer)
 
 #include "GUI.h"
 #include "GUIDRV_Lin.h"
+#include "oled.h"
 
 char dis_buff[128 * 8];
 
@@ -71,8 +72,8 @@ void CUSTOM_LCD_DrawBitmap16bpp();
 //
 // Physical display size
 //
-#define XSIZE_PHYS 64
-#define YSIZE_PHYS 128
+#define XSIZE_PHYS 128
+#define YSIZE_PHYS 64
 
 //
 // Color conversion
@@ -139,7 +140,7 @@ void CUSTOM_LCD_DrawBitmap16bpp();
 */
 void LCD_X_Config(void) {
   //
-  // At first initialize use of multiple buffers on demand
+  OLED_init();
   //
   #if (NUM_BUFFERS > 1)
     GUI_MULTIBUF_Config(NUM_BUFFERS);
@@ -266,6 +267,7 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData) {
     LCD_X_SHOWBUFFER_INFO * p;
     p = (LCD_X_SHOWBUFFER_INFO *)pData;
     //...
+	//oled_img_display(dis_buff);
     return 0;
   }
   case LCD_X_SETLUTENTRY: {
@@ -281,11 +283,12 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData) {
     //
     // Required if the display controller should support switching on and off
     //
+	Set_Display_On_Off(1);
     return 0;
   }
   case LCD_X_OFF: {
     //
-    // Required if the display controller should support switching on and off
+	Set_Display_On_Off(0);
     //
     // ...
     return 0;

@@ -33,6 +33,9 @@ void plot1(unsigned char data[]);
 void line(unsigned char x);
 void plot_128(unsigned char data[]);
 void oled_img_display(char *buff);
+void Set_Display_On_Off(unsigned char d);
+void oled_img2_display(char *buff);
+void LCD_WrDat(unsigned char data);
 
 #ifdef __cplusplus
 }

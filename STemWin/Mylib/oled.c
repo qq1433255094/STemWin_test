@@ -138,7 +138,8 @@ void oled_delay_ms(unsigned int t)
 
 void oled_delay_us(unsigned int t)
 {
-	//int i=0;
+	//int i=1;
+	//i = i*i;
 	//for( i=0;i<t;i++)
 	//{
 	//	int a=100;
@@ -160,7 +161,7 @@ void LCD_WrDat(unsigned char data)
        else          LCD_SDA_0;
        LCD_SCL_1; 
        oled_delay_us(1);         
-       LCD_SCL_0;;    
+       LCD_SCL_0;
        data<<=1;
      }
 }
@@ -488,7 +489,7 @@ void OLED_init(void)
     Set_Display_Offset(0x00);		// Shift Mapping RAM Counter (0x00~0x3F)
     SetStartLine(0x00);			    // Set Mapping RAM Display Start Line (0x00~0x3F)
     Set_Charge_Pump(0x04);		    // Enable Embedded DC/DC Converter (0x00/0x04)
-    SetAddressingMode(0x02);		// Set Page Addressing Mode (0x00/0x01/0x02)
+    SetAddressingMode(0x00);		// Set Page Addressing Mode (0x00/0x01/0x02)
     Set_Segment_Remap(0x01);		// Set SEG/Column Mapping     
     Set_Common_Remap(0x08);			// Set COM/Row Scan Direction 
     Set_Common_Config(0x10);		// Set Sequential Configuration (0x00/0x10)
@@ -731,7 +732,102 @@ unsigned char show_block3(int8_t x, int8_t y, int8_t x_now, int8_t line)
 //		}
 //}
 
+
+uint8_t dir = 1;
+
 void oled_img_display(char *buff)
+{
+	uint16_t i, j, k, shift;
+	uint16_t y, x;
+	uint8_t data = 0;
+
+	
+	LCD_Set_Pos(0, 0);
+	for (y = 0; y < 8; y++)
+	{
+		/*LCD_WrCmd(0xb0 + y);
+		LCD_WrCmd(((0 & 0xf0) >> 4) | 0x10);
+		LCD_WrCmd(0 & 0x0f);*/
+		
+		for (x = 0; x < 128; x++)
+		{
+			uint8_t p_bit = 0;
+
+			if (dir == 1)
+			{
+				data = 0;
+				for (shift = 0; shift < 8; shift++)
+				{
+					i = 7 - x % 8;
+					j = x >> 3;
+					p_bit = (buff[(y * 8 + shift) * 16 + j] >> i) & 0x01;
+
+					data |= p_bit << shift;
+				}
+			}
+			else
+			{
+				data = buff[7 - y + (x << 3)];
+			}
+			
+			LCD_WrDat(data);
+		}
+	}
+
+}
+
+uint16_t oled_index = 0;
+void oled_img2_display(char *buff)
+{
+	uint16_t i, j, k, shift;
+	uint16_t y, x;
+	uint8_t data = 0;
+
+	x = oled_index;
+
+	for (y = 0; y < 8; y++)
+	{
+		//LCD_WrCmd(0xb0 + y);
+		//LCD_WrCmd(((0 & 0xf0) >> 4) | 0x10);
+		//LCD_WrCmd(x & 0x0f);
+
+		LCD_Set_Pos(x, y);
+
+		//for (x = 0; x < 128; x++)
+		
+		{
+			uint8_t p_bit = 0;
+
+			if (dir == 1)
+			{
+				data = 0;
+				for (shift = 0; shift < 8; shift++)
+				{
+					i = 7 - x % 8;
+					j = x >> 3;
+					p_bit = (buff[(y * 8 + shift) * 16 + j] >> i) & 0x01;
+
+					data |= p_bit << shift;
+				}
+			}
+			else
+			{
+				data = buff[7 - y + (x << 3)];
+			}
+
+			LCD_WrDat(data);
+		}
+	}
+
+		oled_index++;
+		if (oled_index == 128)
+		{
+			oled_index = 0;
+		}
+
+}
+
+void oled_imgL_display(char *buff)
 {
 	uint16_t i, j, k, shift;
 	uint16_t y, x;
@@ -750,7 +846,7 @@ void oled_img_display(char *buff)
 
 
 
-			data = buff[7-y+x*8];
+			data = buff[7 - y + (x <<3)];
 			//for (shift = 0; shift < 8; shift++)
 			//{
 
