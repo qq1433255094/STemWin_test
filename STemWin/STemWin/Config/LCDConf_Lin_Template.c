@@ -54,7 +54,7 @@ Purpose     : Display controller configuration (single layer)
 #include "GUI.h"
 #include "GUIDRV_Lin.h"
 
-char dis_buff[128 * 64];
+char dis_buff[128 * 8];
 
 void CUSTOM_LCD_CopyBuffer();
 void CUSTOM_LCD_CopyRect();
@@ -71,8 +71,8 @@ void CUSTOM_LCD_DrawBitmap16bpp();
 //
 // Physical display size
 //
-#define XSIZE_PHYS 128
-#define YSIZE_PHYS 64
+#define XSIZE_PHYS 64
+#define YSIZE_PHYS 128
 
 //
 // Color conversion
@@ -82,7 +82,7 @@ void CUSTOM_LCD_DrawBitmap16bpp();
 //
 // Display driver
 //
-#define DISPLAY_DRIVER GUIDRV_LIN_8
+#define DISPLAY_DRIVER GUIDRV_LIN_1
 
 //
 // Buffers / VScreens
@@ -151,6 +151,7 @@ void LCD_X_Config(void) {
   //
   // Display driver configuration, required for Lin-driver
   //
+
   if (LCD_GetSwapXY()) {
     LCD_SetSizeEx (0, YSIZE_PHYS, XSIZE_PHYS);
     LCD_SetVSizeEx(0, YSIZE_PHYS * NUM_VSCREENS, XSIZE_PHYS);
@@ -169,6 +170,7 @@ void LCD_X_Config(void) {
   //
   // Set custom functions for several operations to optimize native processes
   //
+
   LCD_SetDevFunc(0, LCD_DEVFUNC_COPYBUFFER, (void(*)(void))CUSTOM_LCD_CopyBuffer);
   LCD_SetDevFunc(0, LCD_DEVFUNC_COPYRECT,   (void(*)(void))CUSTOM_LCD_CopyRect);
   LCD_SetDevFunc(0, LCD_DEVFUNC_FILLRECT, (void(*)(void))CUSTOM_LCD_FillRect);

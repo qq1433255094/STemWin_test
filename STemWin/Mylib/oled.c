@@ -750,14 +750,14 @@ void oled_img_display(char *buff)
 
 
 
-			data = 0;
-			for (shift = 0; shift < 8; shift++)
-			{
+			data = buff[7-y+x*8];
+			//for (shift = 0; shift < 8; shift++)
+			//{
 
-				p_bit = (buff[(y*8+ shift) * 128 +x]) & 0x01;
+			//	p_bit = (buff[(y*8+ shift) * 128 +x]) & 0x01;
 
-				data |= p_bit << shift;
-			}
+			//	data |= p_bit << shift;
+			//}
 
 			//data = camera_buffer[x*5][(7-y)*5];
 			//data = 0xAA;
