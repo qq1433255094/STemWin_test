@@ -75,8 +75,10 @@ GUI_TIMER_TIME GUI_X_GetTime(void) {
 }
 
 void GUI_X_Delay(int ms) { 
-  int tEnd = OS_TimeMS + ms;
-  while ((tEnd - OS_TimeMS) > 0);
+  /*int tEnd = OS_TimeMS + ms;
+  while ((tEnd - OS_TimeMS) > 0);*/
+	//osDelay(ms);
+	HAL_Delay(ms);
 }
 
 /*********************************************************************

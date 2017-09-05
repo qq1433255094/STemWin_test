@@ -17,6 +17,9 @@
 
 HAL_StatusTypeDef spi1_init(void);
 uint8_t SPI1_WriteRead(uint8_t Byte);
+void SPI_Write(uint8_t *buff, uint16_t size);
+void SPI1_DMA_Write(uint8_t *buff, uint16_t size);
+uint8_t DMA_Status();
 
 #ifdef __cplusplus
 }

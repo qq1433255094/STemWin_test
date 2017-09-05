@@ -51,8 +51,10 @@ Purpose     : Display driver configuration file
   ******************************************************************************
   */
 
-#ifndef LCDCONF_H
-#define LCDCONF_H
+#ifndef LCDCONF_LIN_H
+#define LCDCONF_LIN_H
+
+unsigned char * GUI_GET_VRAM_ADDR();
 
 #endif /* LCDCONF_H */
 

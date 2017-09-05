@@ -2,9 +2,12 @@
 #include <stm32_hal_legacy.h>
 #include "GUI.h"
 #include "oled.h"
+#include "tim3.h"
+#include "os_task.h"
+
 
 extern volatile GUI_TIMER_TIME OS_TimeMS;
-extern char dis_buff[128 * 64];
+extern char GUI_BUFF[128 * 64];
 
 #ifdef __cplusplus
 extern "C"
@@ -13,12 +16,16 @@ extern "C"
 void SysTick_Handler(void)
 {
 	HAL_IncTick();
+	osSystickHandler();
 	OS_TimeMS++;
 	HAL_SYSTICK_IRQHandler();
 }
 
 int (*init)(void);
 void setSystemClock(void);
+
+
+
 
 int main(void)
 {
@@ -31,58 +38,43 @@ int main(void)
 	__HAL_RCC_CRC_CLK_ENABLE();
 	
 	GUI_Init();
-	
-	GUI_Clear();
 
-	GUI_DispString(" hello");
+	//GUI_Clear();
 
-	GUI_DrawRect(10, 10, 100, 15);
+	//GUI_DispString(" hello");
 
-	oled_img_display(dis_buff);
+	//GUI_DrawRect(10, 10, 100, 15);
+	//GUI_DrawRect(0, 0, 127, 63);
 
-	
-	__GPIOD_CLK_ENABLE();
-	GPIO_InitTypeDef GPIO_InitStructure;
+	os_task_init();
+	os_task_start();
 
-	GPIO_InitStructure.Pin = GPIO_PIN_13;
-
-	GPIO_InitStructure.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
-	GPIO_InitStructure.Pull = GPIO_NOPULL;
-	HAL_GPIO_Init(GPIOD, &GPIO_InitStructure);
+	for (;;)
+	{
+	}
 
 	int i = 10;
-	uint8_t data;
 	uint32_t time_test = HAL_GetTick();
 
 	for (uint32_t i = 0; i < 1000; i++)
 	{
-		oled_img2_display(dis_buff);
+		//buff_format_conversion((uint8_t *)dis_buff, buff);
+		oled_img_display(GUI_BUFF);
 	}
 
 	time_test = HAL_GetTick() - time_test;
 	HAL_Delay(1);
 
+	
 
 	for (;;)
 	{
-		main_tick = HAL_GetTick() % 50;
-		if (main_tick == 10)
-		{
-			
-			GUI_DrawRect(10, 10, i++, 15);
-			if (i == 100)
-			{
-				i = 10;
-				GUI_ClearRect(10, 10, 100, 15);
-				GUI_DrawRect(10, 10, 100, 15);
-			}
-		}
+
 
 
 		for (uint32_t i = 0; i < 3; i++)
 		{
-			oled_img2_display(dis_buff);
+			;
 		}
 
 

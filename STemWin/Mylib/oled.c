@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "spi1.h"
+
 
 
 #define LCD_RST_1  HAL_GPIO_WritePin(LCD_GPIO,LCD_RST_PIN,GPIO_PIN_SET)
@@ -149,39 +151,58 @@ void oled_delay_us(unsigned int t)
 	////i++;
 }
 
+#define USE_SPI
+#ifndef USE_SPI
 void LCD_WrDat(unsigned char data)
 {
-	unsigned char i=8;
+	unsigned char i = 8;
 	LCD_DC_1;
-    LCD_SCL_0;
-    oled_delay_us(1);
-    while(i--)
-     {
-       if(data&0x80) LCD_SDA_1;
-       else          LCD_SDA_0;
-       LCD_SCL_1; 
-       oled_delay_us(1);         
-       LCD_SCL_0;
-       data<<=1;
-     }
+	LCD_SCL_0;
+	oled_delay_us(1);
+	while (i--)
+	{
+		if (data & 0x80) LCD_SDA_1;
+		else          LCD_SDA_0;
+		LCD_SCL_1;
+		oled_delay_us(1);
+		LCD_SCL_0;
+		data <<= 1;
+	}
 }
 
 void LCD_WrCmd(unsigned char cmd)
 {
-	unsigned char i=8;
+	unsigned char i = 8;
 	LCD_DC_0;
-    LCD_SCL_0;
-    oled_delay_us(1);
-    while(i--)
-     {
-       if(cmd&0x80)	 LCD_SDA_1;
-       else          LCD_SDA_0;
-       LCD_SCL_1;
-       oled_delay_us(1);
-       LCD_SCL_0;
-       cmd<<=1;
-     } 	
+	LCD_SCL_0;
+	oled_delay_us(1);
+	while (i--)
+	{
+		if (cmd & 0x80)	 LCD_SDA_1;
+		else          LCD_SDA_0;
+		LCD_SCL_1;
+		oled_delay_us(1);
+		LCD_SCL_0;
+		cmd <<= 1;
+	}
 }
+#else
+
+
+void LCD_WrDat(unsigned char data)
+{
+	SPI1_WriteRead(data);
+}
+
+void LCD_WrCmd(unsigned char cmd)
+{
+
+	LCD_DC_0;
+	SPI1_WriteRead(cmd);
+	LCD_DC_1;
+}
+
+#endif
 
 void LCD_Set_Pos(unsigned char x, unsigned char y)
 { 
@@ -469,6 +490,11 @@ void OLED_init(void)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
+#ifdef USE_SPI
+	spi1_init();
+#endif // USE_SPI
+
+
 	/* GPIO Ports Clock Enable */
 	__OLED_CLK_ENABLE();
 
@@ -587,279 +613,212 @@ void plot1(unsigned char data[])
 	}
 
 }
-void line(unsigned char x)
-{
-	unsigned char y,i,j;	
-	
-	for(y=4;y<8;y++)
-	{
-  	LCD_WrCmd(0xb0+y);
-  	LCD_WrCmd(((x&0xf0)>>4)|0x10);
-  	LCD_WrCmd(x&0x0f);
-		LCD_WrDat(0xAA);	
-	}
-}
-
-unsigned char show_block(int8_t x, int8_t y, int8_t x_now, int8_t line)
-{
-	int8_t set_x = 30, set_y = 33, out = 0, a = y+ set_y - line * 8;
-	//y += set_y;
-	if (x_now>(x+set_x-3) && x_now<(x + set_x + 3))
-	{
-		if (a >= 0 && a <= 7)
-		{
-			out = 0x1f << a;
-		}
-		else if ((int8_t)a > -5 && (int8_t)a < 0)
-		{
-			out = 0x1f >> (-a);
-		}
-	}
-
-	return out;
-}
-
-unsigned char show_block2(int8_t x, int8_t y, int8_t x_now, int8_t line)
-{
-	int8_t set_x = 30, set_y = 34, out = 0, a = y + set_y - line * 8;
-	//y += set_y;
-	if (x_now > (x + set_x - 2) && x_now < (x + set_x + 2) )
-	{
-		if (a >= 0 && a <= 7)
-		{
-			out = 0x07 << a;
-		}
-		else if ((int8_t)a > -3 && (int8_t)a < 0)
-		{
-			out = 0x07 >> (-a);
-		}
-	}
-
-	return out;
-}
-
-unsigned char show_block3(int8_t x, int8_t y, int8_t x_now, int8_t line)
-{
-	int8_t set_x = 30, set_y = 34, out = 0, a = y + set_y - line * 8;
-	//y += set_y;
-	if (x_now > (x + set_x - 2) && x_now < (x + set_x + 2) && x_now != (x + set_x))
-	{
-		if (a >= 0 && a <= 7)
-		{
-			out = 0x05 << a;
-		}
-		else if ((int8_t)a > -3 && (int8_t)a < 0)
-		{
-			out = 0x05 >> (-a);
-		}
-	}
-
-	return out;
-}
-
-//void DisplayMap(char line)
-//{
-//	unsigned char y, x, i, j, a;
-//	int8_t get_x = (int8_t)(Place_real[CH_X] *0.014286);
-//	int8_t get_y = -(int8_t)(Place_real[CH_Y] *0.014286);
-//
-//		LCD_Set_Pos(0, line);
-//		for (x = 0; x < 64; x++)
-//		{
-//			//
-//			a = 0;
-//			a |= show_block(get_x, get_y, x, line);
-//			if (block_count > 0)
-//			{
-//				for (int i = 0; i < block_count; i++)
-//				{
-//					int8_t get_x = (int8_t)(blocks[i].real_x * 0.014286);
-//					int8_t get_y = -(int8_t)(blocks[i].real_y * 0.014286);
-//
-//					if (blocks[i].height==1)
-//					{
-//						a |= show_block3(get_x, get_y, x, line);
-//					}
-//					else
-//					{
-//						a |= show_block2(get_x, get_y, x, line);
-//					}
-//				}
-//			}
-//			//a |= show_block2(-5, 0, x, line);
-//			
-//
-//			if (line == 0)
-//			{
-//				if (x == 32 || x == 42)
-//				{
-//					a |= 0xfc;
-//				} 
-//				else if (x > 32 && x < 42)
-//				{
-//					a |= 0x04;
-//				}
-//			}
-//			else if (line >0 && line < 4)
-//			{
-//				if (x == 32 || x == 42)
-//					a |= 0xff;
-//			}
-//			else if (line == 4)
-//			{
-//				if (x == 2 || x == 42)
-//					a |= 0xff;
-//				else if (x > 2 && x < 33)
-//				{
-//					a |= 0x01;
-//				}
-//			}
-//			else if (line > 4 && line < 7)
-//			{
-//				if (x == 2 || x == 42)
-//					a |= 0xff;
-//			}
-//			else if (line == 7)
-//			{
-//				if (x == 2 || x == 42)
-//					a |= 0x3f;
-//				else if (x > 2 && x < 42)
-//				{
-//					a |= 0x20;;
-//				}
-//			}
-//			LCD_WrDat(a);
-//		}
-//}
 
 
 uint8_t dir = 1;
 
+uint8_t buff_img[128 * 8];
 void oled_img_display(char *buff)
 {
-	uint16_t i, j, k, shift;
-	uint16_t y, x;
-	uint8_t data = 0;
+	
+	buff_format_conversion(buff, buff_img);
+
+	LCD_Set_Pos(0, 0);
+	
+	SPI1_DMA_Write(buff_img, 1024);
+	//while (DMA_Status() != 1);
+
+}
+
+
+uint16_t oled_index = 7;
+uint8_t buff_apart[128];
+void oled_img_apart_display(uint8_t *buff_in)
+{
+
+	oled_index++;
+	if (oled_index == 8)
+	{
+		oled_index = 0;
+		LCD_Set_Pos(0, 0);
+	}
+	
+	buff_format_conversion_128(buff_in, buff_apart,oled_index);
 
 	
-	LCD_Set_Pos(0, 0);
-	for (y = 0; y < 8; y++)
-	{
-		/*LCD_WrCmd(0xb0 + y);
-		LCD_WrCmd(((0 & 0xf0) >> 4) | 0x10);
-		LCD_WrCmd(0 & 0x0f);*/
-		
-		for (x = 0; x < 128; x++)
-		{
-			uint8_t p_bit = 0;
-
-			if (dir == 1)
-			{
-				data = 0;
-				for (shift = 0; shift < 8; shift++)
-				{
-					i = 7 - x % 8;
-					j = x >> 3;
-					p_bit = (buff[(y * 8 + shift) * 16 + j] >> i) & 0x01;
-
-					data |= p_bit << shift;
-				}
-			}
-			else
-			{
-				data = buff[7 - y + (x << 3)];
-			}
-			
-			LCD_WrDat(data);
-		}
-	}
+	
+	SPI1_DMA_Write(buff_apart, 128);
 
 }
 
-uint16_t oled_index = 0;
-void oled_img2_display(char *buff)
+void buff_format_conversion(uint8_t *buff_in, uint8_t *buff_out)
 {
-	uint16_t i, j, k, shift;
+	uint16_t i, j, k, shift, offset_y, bit_val[8] = { 0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80 };
 	uint16_t y, x;
 	uint8_t data = 0;
-
-	x = oled_index;
+	uint8_t p_bit = 0;
 
 	for (y = 0; y < 8; y++)
 	{
-		//LCD_WrCmd(0xb0 + y);
-		//LCD_WrCmd(((0 & 0xf0) >> 4) | 0x10);
-		//LCD_WrCmd(x & 0x0f);
-
-		LCD_Set_Pos(x, y);
-
-		//for (x = 0; x < 128; x++)
-		
-		{
-			uint8_t p_bit = 0;
-
-			if (dir == 1)
-			{
-				data = 0;
-				for (shift = 0; shift < 8; shift++)
-				{
-					i = 7 - x % 8;
-					j = x >> 3;
-					p_bit = (buff[(y * 8 + shift) * 16 + j] >> i) & 0x01;
-
-					data |= p_bit << shift;
-				}
-			}
-			else
-			{
-				data = buff[7 - y + (x << 3)];
-			}
-
-			LCD_WrDat(data);
-		}
-	}
-
-		oled_index++;
-		if (oled_index == 128)
-		{
-			oled_index = 0;
-		}
-
-}
-
-void oled_imgL_display(char *buff)
-{
-	uint16_t i, j, k, shift;
-	uint16_t y, x;
-	uint8_t data = 0;
-
-	i = 0;
-	for (y = 0; y < 8; y++)
-	{
-		LCD_WrCmd(0xb0 + y);
-		LCD_WrCmd(((0 & 0xf0) >> 4) | 0x10);
-		LCD_WrCmd(0 & 0x0f);
-
+		offset_y = y << 7;
 		for (x = 0; x < 128; x++)
 		{
-			uint8_t p_bit = 0;
-
-
-
-			data = buff[7 - y + (x <<3)];
-			//for (shift = 0; shift < 8; shift++)
+			//if (dir == 1)
 			//{
+				data = 0;
 
-			//	p_bit = (buff[(y*8+ shift) * 128 +x]) & 0x01;
+				i = 7 - x % 8;
+				j = x >> 3;
 
-			//	data |= p_bit << shift;
+				p_bit = (buff_in[(0 << 4) + offset_y + j] >> i) & 0x01;
+				data |= p_bit << 0;
+
+				p_bit = (buff_in[(1 << 4) + offset_y + j] >> i) & 0x01;
+				data |= p_bit << 1;
+
+				p_bit = (buff_in[(2 << 4) + offset_y + j] >> i) & 0x01;
+				data |= p_bit << 2;
+
+				p_bit = (buff_in[(3 << 4) + offset_y + j] >> i) & 0x01;
+				data |= p_bit << 3;
+
+				p_bit = (buff_in[(4 << 4) + offset_y + j] >> i) & 0x01;
+				data |= p_bit << 4;
+
+				p_bit = (buff_in[(5 << 4) + offset_y + j] >> i) & 0x01;
+				data |= p_bit << 5;
+
+				p_bit = (buff_in[(6 << 4) + offset_y + j] >> i) & 0x01;
+				data |= p_bit << 6;
+
+				p_bit = (buff_in[(7 << 4) + offset_y + j] >> i) & 0x01;
+				data |= p_bit << 7;
+
+			//}
+			//else
+			//{
+			//	data = buff_in[7 - y + (x << 3)];
 			//}
 
-			//data = camera_buffer[x*5][(7-y)*5];
-			//data = 0xAA;
-			//data = __RBIT(data);
-			LCD_WrDat(data);
+			buff_out[(y << 7) + x] = data;
+		}
+	}
+}
+
+uint16_t buff_format_index = 0;
+void buff_format_conversion_8(uint8_t *buff_in, uint8_t *buff_out)
+{
+	uint16_t i, j, k, shift, offset_y, bit_val[8] = { 0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80 };
+	uint16_t y, x;
+	uint8_t data = 0;
+	uint8_t p_bit = 0;
+
+	//for (y = 0; y < 8; y++)
+	y = buff_format_index;
+	{
+		offset_y = y << 7;
+		for (x = 0; x < 128; x++)
+		{
+			//if (dir == 1)
+			//{
+			data = 0;
+
+			i = 7 - x % 8;
+			j = x >> 3;
+
+			p_bit = (buff_in[(0 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 0;
+
+			p_bit = (buff_in[(1 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 1;
+
+			p_bit = (buff_in[(2 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 2;
+
+			p_bit = (buff_in[(3 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 3;
+
+			p_bit = (buff_in[(4 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 4;
+
+			p_bit = (buff_in[(5 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 5;
+
+			p_bit = (buff_in[(6 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 6;
+
+			p_bit = (buff_in[(7 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 7;
+
+			//}
+			//else
+			//{
+			//	data = buff_in[7 - y + (x << 3)];
+			//}
+
+			buff_out[(y << 7) + x] = data;
 		}
 	}
 
+	buff_format_index++;
+	if (buff_format_index == 8)
+	{
+		buff_format_index = 0;
+	}
 }
+
+void buff_format_conversion_128(uint8_t *buff_in, uint8_t *buff_out,uint16_t index)
+{
+	uint16_t i, j, k, shift, offset_y;
+	uint16_t y, x;
+	uint8_t data = 0;
+	uint8_t p_bit = 0;
+
+	//for (y = 0; y < 8; y++)
+	y = index;
+	{
+		offset_y = y << 7;
+		for (x = 0; x < 128; x++)
+		{
+			//if (dir == 1)
+			//{
+			data = 0;
+
+			i = 7 - x % 8;
+			j = x >> 3;
+
+			p_bit = (buff_in[(0 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 0;
+
+			p_bit = (buff_in[(1 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 1;
+
+			p_bit = (buff_in[(2 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 2;
+
+			p_bit = (buff_in[(3 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 3;
+
+			p_bit = (buff_in[(4 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 4;
+
+			p_bit = (buff_in[(5 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 5;
+
+			p_bit = (buff_in[(6 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 6;
+
+			p_bit = (buff_in[(7 << 4) + offset_y + j] >> i) & 0x01;
+			data |= p_bit << 7;
+
+			//}
+			//else
+			//{
+			//	data = buff_in[7 - y + (x << 3)];
+			//}
+
+			buff_out[x] = data;
+		}
+	}
+}
+

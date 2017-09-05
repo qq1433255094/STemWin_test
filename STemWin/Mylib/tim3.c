@@ -2,6 +2,7 @@
 #include "stm32f4xx_hal.h"
 #include "button.h"
 #include "tim4.h"
+#include "oled.h"
 
 TIM_HandleTypeDef htim3;
 
@@ -73,8 +74,16 @@ void  TIM3_Handler(void)
 	}*/
 
 	tim3_cnt++;
-	tim3_cnt_button++;
-	update_buttonstate(tim3_cnt_button);
+	//tim3_cnt_button++;
+	//update_buttonstate(tim3_cnt_button);
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) //5ms
+{
+	if (htim->Instance == TIM3)
+	{
+		TIM3_Handler();
+	}
 }
 
 

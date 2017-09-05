@@ -34,8 +34,11 @@ void line(unsigned char x);
 void plot_128(unsigned char data[]);
 void oled_img_display(char *buff);
 void Set_Display_On_Off(unsigned char d);
-void oled_img2_display(char *buff);
+void oled_img_apart_display(uint8_t *buff_in);
 void LCD_WrDat(unsigned char data);
+void buff_format_conversion(uint8_t *buff_in, uint8_t *buff_out);
+void buff_format_conversion_8(uint8_t *buff_in, uint8_t *buff_out);
+void buff_format_conversion_128(uint8_t *buff_in, uint8_t *buff_out, uint16_t index);
 
 #ifdef __cplusplus
 }

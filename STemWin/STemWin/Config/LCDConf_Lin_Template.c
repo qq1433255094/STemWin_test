@@ -55,7 +55,7 @@ Purpose     : Display controller configuration (single layer)
 #include "GUIDRV_Lin.h"
 #include "oled.h"
 
-char dis_buff[128 * 8];
+unsigned char GUI_BUFF[128 * 8];
 
 void CUSTOM_LCD_CopyBuffer();
 void CUSTOM_LCD_CopyRect();
@@ -98,7 +98,7 @@ void CUSTOM_LCD_DrawBitmap16bpp();
 **********************************************************************
 */
 #ifndef   VRAM_ADDR
-  #define VRAM_ADDR dis_buff // TBD by customer: This has to be the frame buffer start address
+  #define VRAM_ADDR GUI_BUFF // TBD by customer: This has to be the frame buffer start address
 #endif
 #ifndef   XSIZE_PHYS
   #error Physical X size of display is not defined!
@@ -138,6 +138,12 @@ void CUSTOM_LCD_DrawBitmap16bpp();
 *   display driver configuration.
 *   
 */
+
+unsigned char * GUI_GET_VRAM_ADDR()
+{
+	return GUI_BUFF;
+}
+
 void LCD_X_Config(void) {
   //
   OLED_init();
@@ -267,7 +273,7 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData) {
     LCD_X_SHOWBUFFER_INFO * p;
     p = (LCD_X_SHOWBUFFER_INFO *)pData;
     //...
-	//oled_img_display(dis_buff);
+	//oled_img_display(GUI_BUFF);
     return 0;
   }
   case LCD_X_SETLUTENTRY: {
@@ -283,12 +289,12 @@ int LCD_X_DisplayDriver(unsigned LayerIndex, unsigned Cmd, void * pData) {
     //
     // Required if the display controller should support switching on and off
     //
-	Set_Display_On_Off(1);
+	//Set_Display_On_Off(1);
     return 0;
   }
   case LCD_X_OFF: {
     //
-	Set_Display_On_Off(0);
+	//Set_Display_On_Off(0);
     //
     // ...
     return 0;

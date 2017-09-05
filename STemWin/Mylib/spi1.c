@@ -6,6 +6,8 @@
 #include "spi1.h"
 
 SPI_HandleTypeDef hspi1;
+DMA_HandleTypeDef hdma_tx;
+uint8_t DMA_OK = 0;
 
 /*
 The SPI HAL driver can be used as follows:
@@ -94,7 +96,7 @@ HAL_StatusTypeDef spi1_init(void)
 												
 	__GPIOA_CLK_ENABLE();//(##) I2S pins configuration:
 	
-	GPIO_Init.Pin   = GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
+	GPIO_Init.Pin   = GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;//sck mi mo
 	GPIO_Init.Mode  = GPIO_MODE_AF_PP;
 	GPIO_Init.Pull  = GPIO_PULLDOWN;
 	GPIO_Init.Speed = GPIO_SPEED_MEDIUM;
@@ -117,7 +119,40 @@ HAL_StatusTypeDef spi1_init(void)
 	hspi1.Init.TIMode = SPI_TIMODE_DISABLED;
 	hspi1.Init.Mode = SPI_MODE_MASTER;
 
-	state=HAL_SPI_Init(&hspi1);
+	
+
+	__HAL_RCC_DMA2_CLK_ENABLE();
+	/* Configure the DMA handler for Transmission process */
+	hdma_tx.Instance = DMA2_Stream3;
+
+	hdma_tx.Init.Channel = DMA_CHANNEL_3;
+	hdma_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
+	hdma_tx.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma_tx.Init.MemInc = DMA_MINC_ENABLE;
+	hdma_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+	hdma_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+	hdma_tx.Init.Mode = DMA_NORMAL;
+	hdma_tx.Init.Priority = DMA_PRIORITY_LOW;
+	hdma_tx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+	hdma_tx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+	hdma_tx.Init.MemBurst = DMA_MBURST_INC4;
+	hdma_tx.Init.PeriphBurst = DMA_PBURST_INC4;
+
+	HAL_DMA_Init(&hdma_tx);
+
+	/* Associate the initialized DMA handle to the the SPI handle */
+	__HAL_LINKDMA(&hspi1, hdmatx, hdma_tx);
+
+	/*##-4- Configure the NVIC for DMA #########################################*/
+	/* NVIC configuration for DMA transfer complete interrupt (SPI1_TX) */
+	HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 4, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
+
+	/*##-5- Configure the NVIC for SPI #########################################*/
+	HAL_NVIC_SetPriority(SPI1_IRQn, 4, 0);
+	HAL_NVIC_EnableIRQ(SPI1_IRQn);
+
+	state = HAL_SPI_Init(&hspi1);
 	
 	return state;
 }
@@ -141,6 +176,42 @@ uint8_t SPI1_WriteRead(uint8_t Byte)
 	}
   
 	return receivedbyte;
+}
+
+void SPI_Write(uint8_t *buff, uint16_t size)
+{
+	HAL_SPI_Transmit(&hspi1, buff, size, 20);
+}
+
+void SPI1_DMA_Write(uint8_t *buff, uint16_t size)
+{
+	DMA_OK = 0;
+	HAL_SPI_Transmit_DMA(&hspi1, buff, size);
+}
+
+void DMA2_Stream3_IRQHandler(void)
+{
+	HAL_DMA_IRQHandler(hspi1.hdmatx);
+}
+
+uint8_t DMA_Status()
+{
+	return DMA_OK;
+}
+
+/**
+* @brief  This function handles SPI interrupt request.
+* @param  None
+* @retval None
+*/
+void SPI1_IRQHandler(void)
+{
+	HAL_SPI_IRQHandler(&hspi1);
+}
+
+void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	DMA_OK = 1;
 }
 
 
