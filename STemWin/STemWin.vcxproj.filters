@@ -669,9 +669,6 @@
     <ClCompile Include="STemWin\Config\GUIConf.c">
       <Filter>emWin\config</Filter>
     </ClCompile>
-    <ClCompile Include="STemWin\Config\GUIDRV_Template.c">
-      <Filter>emWin\config</Filter>
-    </ClCompile>
     <ClCompile Include="STemWin\Config\LCDConf_Lin_Template.c">
       <Filter>emWin\config</Filter>
     </ClCompile>
@@ -783,9 +780,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="STemWin\Config\GUIConf.h">
-      <Filter>emWin\config</Filter>
-    </ClInclude>
-    <ClInclude Include="STemWin\Config\GUIDRV_Template.h">
       <Filter>emWin\config</Filter>
     </ClInclude>
     <ClInclude Include="STemWin\inc\BUTTON.h">

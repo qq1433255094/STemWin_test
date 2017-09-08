@@ -52,6 +52,7 @@ Purpose     : Config / System dependent externals for GUI
   */
 
 #include "GUI.h"
+#include "cmsis_os.h"
 
 /*********************************************************************
 *
@@ -71,14 +72,16 @@ volatile GUI_TIMER_TIME OS_TimeMS;
 */
 
 GUI_TIMER_TIME GUI_X_GetTime(void) { 
-  return OS_TimeMS; 
+
+	//__asm("mov r5,#0");
+  return OS_TimeMS;
 }
 
 void GUI_X_Delay(int ms) { 
   /*int tEnd = OS_TimeMS + ms;
   while ((tEnd - OS_TimeMS) > 0);*/
-	//osDelay(ms);
-	HAL_Delay(ms);
+	osDelay(ms);
+	//HAL_Delay(ms);
 }
 
 /*********************************************************************

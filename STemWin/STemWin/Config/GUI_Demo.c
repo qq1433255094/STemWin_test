@@ -122,21 +122,21 @@ static void _ShowMovie(const char * pFile, int FileSize) {
 	//
 	GUI_SetFont(&GUI_Font8x16);
 	GUI_ClearRect(0, 40, 319, 59);
-	GUI_DispStringHCenterAt("Show complete GIF file as movie", 160, 40);
+	//GUI_DispStringHCenterAt("Show complete GIF file as movie", 160, 40);
 	//
 	// Show movie
 	//
-	GUI_ClearRect(0, 60, 319, 239);                                 // Clear the image area
+	//GUI_ClearRect(0, 60, 319, 239);                                 // Clear the image area
 	GUI_GIF_GetInfo(pFile, FileSize, &GifInfo);                     // Get GIF info structure
-	XPos = (GifInfo.xSize > 320) ? 0 : 160 - (GifInfo.xSize / 2);
-	YPos = (GifInfo.ySize > 180) ? 60 : 150 - (GifInfo.ySize / 2);
+	XPos = 64 - (GifInfo.xSize / 2);// (GifInfo.xSize > 320) ? 0 : 160 - (GifInfo.xSize / 2);
+	YPos = 32 - (GifInfo.ySize / 2);//(GifInfo.ySize > 180) ? 60 : 150 - (GifInfo.ySize / 2);
 	for (i = 0; i < 2; i++) {                                       // Show the complete GIF 2 times ...
 		for (j = 0; j < GifInfo.NumImages; j++) {
 			GUI_GIF_DrawSub(pFile, FileSize, XPos, YPos, j);            // Draw sub image
 			GUI_GIF_GetImageInfo(pFile, FileSize, &ImageInfo, j);       // Get sub image information
-			GUI_Delay(ImageInfo.Delay ? ImageInfo.Delay * 10 : 100);    // Use the Delay member of the ImageInfo structure for waiting a while
+			osDelay(100);    // Use the Delay member of the ImageInfo structure for waiting a while
 		}
-		GUI_Delay(2000);                                              // Wait a while
+		osDelay(2000);                                              // Wait a while
 	}
 }
 
@@ -172,7 +172,7 @@ static void _ShowSubImages(const char * pFile, int FileSize) {
 		GUI_GIF_DrawSub(pFile, FileSize, XPos, YPos, j);              // Draw sub image
 		XPos += GifInfo.xSize;
 	}
-	GUI_Delay(4000);                                                // Wait a while
+	osDelay(4000);                                                // Wait a while
 }
 
 /*******************************************************************
@@ -208,7 +208,7 @@ static void _ShowComments(const char * pFile, int FileSize) {
 		GUI_DispStringInRectWrap(acBuffer, &Rect, GUI_TA_HCENTER | GUI_TA_VCENTER, GUI_WRAPMODE_WORD);
 		GUI_SetBkColor(GUI_WHITE);
 		GUI_SetColor(GUI_BLACK);
-		GUI_Delay(4000);                                              // Wait a while
+		osDelay(4000);                                              // Wait a while
 		CommentCnt++;
 	}
 }
@@ -224,7 +224,7 @@ static void _ShowComments(const char * pFile, int FileSize) {
 *       MainTask
 */
 void MainTask(void) {
-	GUI_Init();
+	//GUI_Init();
 	//
 	// Check if recommended memory for the sample is available
 	//
@@ -235,12 +235,12 @@ void MainTask(void) {
 	GUI_SetBkColor(GUI_WHITE);
 	GUI_Clear();
 	GUI_SetColor(GUI_BLACK);
-	GUI_SetFont(&GUI_Font24_ASCII);
-	GUI_DispStringHCenterAt("DrawGIF - Sample", 160, 5);
+	//GUI_SetFont(&GUI_Font24_ASCII);
+	//GUI_DispStringHCenterAt("DrawGIF - Sample", 160, 5);
 	while (1) {
 		_ShowMovie((char *)_acImage0, sizeof(_acImage0));
-		_ShowSubImages((char *)_acImage0, sizeof(_acImage0));
-		_ShowComments((char *)_acImage0, sizeof(_acImage0));
+		//_ShowSubImages((char *)_acImage0, sizeof(_acImage0));
+		//_ShowComments((char *)_acImage0, sizeof(_acImage0));
 	}
 }
 

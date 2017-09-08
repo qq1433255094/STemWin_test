@@ -1234,7 +1234,9 @@ void GUI_BMP_SerializeExBpp(GUI_CALLBACK_VOID_U8_P * pfSerialize, int x0, int y0
 *
 *       Time / execution related routines
 */
-void           GUI_Delay  (int Period);
+#include "cmsis_os.h"
+#define GUI_Delay osDelay
+//void           GUI_Delay  (int Period);
 GUI_TIMER_TIME GUI_GetTime(void);
 int            GUI_Exec(void);         /* Execute all jobs ... Return 0 if nothing was done. */
 int            GUI_Exec1(void);        /* Execute one job  ... Return 0 if nothing was done. */

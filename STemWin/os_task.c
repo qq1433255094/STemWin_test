@@ -39,26 +39,31 @@ os_exec(TEST){
 	GUI_Clear();
 	for (; ; )
 	{
-		//GUI_DrawRect(10, 10, i++, 15);
-		//if (i == 100)
-		//{
-		//	i = 10;
-		//	GUI_ClearRect(10, 10, 100, 15);
-		//	GUI_DrawRect(10, 10, 100, 15);
+		//GUI_DispStringAt("aa", 5, 5);
+		//GUI_DispStringAt("aa", 5, 15);
+		//GUI_DispStringAt("aa", 5, 25);
+
+		//GUI_Delay(10);
+		//GUI_DrawRect(3, 5, 25, 13);
+		//GUI_DrawRect(3, 15, 25, 23);
+		//GUI_DrawRect(3, 25, 25, 33);
+
+		//GUI_SetDrawMode(GUI_DM_XOR);
+
+		//while (1) {
+		//	GUI_FillRect(4, 6, 24, 12);
+			osDelay(2000);
+		//	GUI_FillRect(4, 6, 24, 12);
+
+		//	GUI_FillRect(4, 16, 24, 22);
+		//	osDelay(2000);
+		//	GUI_FillRect(4, 16, 24, 22);
+
+		//	GUI_FillRect(4, 26, 24, 32);
+		//	osDelay(2000);
+		//	GUI_FillRect(4, 26, 24, 32);
 		//}
-
-		GUI_SetBkColor(GUI_WHITE);
-		GUI_Clear();
-		GUI_SetColor(GUI_BLACK);
-		GUI_DrawRect(10, 10, 50, 50);
-
-
-
-		osDelay(100);
-
-//		GUI_SetBkColor(GUI_INVALID_COLOR);
-
-		//MainTask();
+		MainTask();
 	}
 }
 
